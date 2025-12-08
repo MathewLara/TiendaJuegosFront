@@ -1,0 +1,129 @@
+<div class="inventario-container">
+
+  <div class="header-tools">
+    <h1 class="glitch-title">INVENTARIO DE JUEGOS</h1>
+    <button *ngIf="!verPapelera" class="btn-neon" (click)="abrirModal()">
+        + NUEVO JUEGO
+      </button>
+    
+    <div class="controls-row">
+      
+      <div class="tabs">
+        <button type="button" [class.active]="!verPapelera" (click)="cambiarTab(false)">
+          ACTIVOS
+        </button>
+        
+        <button type="button" [class.active]="verPapelera" (click)="cambiarTab(true)" class="tab-trash">
+          🗑️ PAPELERA
+        </button>
+      </div>
+
+      <div class="search-box">
+        <input [(ngModel)]="busquedaId" (keyup)="buscarPorId()" type="text" placeholder="BUSCAR ID...">
+        <div class="search-icon">🔍</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-table">
+    <table *ngIf="listaVisible.length > 0; else noData">
+      <thead>
+        <tr>
+          <th>IMG</th>
+          <th>ID</th>
+          <th>TÍTULO</th>
+          <th>CATEGORÍA</th>
+          <th>PRECIO</th>
+          <th>STOCK</th>
+          <th>ACCIONES</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let j of listaVisible">
+          <td><img [src]="j.urlImagen" class="mini-cover"></td>
+          <td class="id-col">#{{ j.id }}</td>
+          <td class="title-col">{{ j.titulo }}</td>
+          <td><span class="cat-badge">{{ j.categoriaNombre }}</span></td>
+          <td class="price-col">${{ j.precio }}</td>
+          
+          <td [class.low-stock]="j.stock < 5">
+            {{ j.stock }} un.
+            <span *ngIf="j.stock < 5" class="warning-icon">⚠️</span>
+          </td>
+          
+          <td class="actions-col">
+            
+            <ng-container *ngIf="!verPapelera">
+              <button class="btn-icon edit" (click)="abrirModal(j)" title="Editar">✏️</button>
+              <button class="btn-icon delete" (click)="toggleEstado(j)" title="Desactivar">⛔</button>
+            </ng-container>
+
+            <ng-container *ngIf="verPapelera">
+              <button class="btn-icon restore" (click)="toggleEstado(j)" title="Restaurar">
+                ♻️ REACTIVAR
+              </button>
+            </ng-container>
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #noData>
+      <div class="empty-msg">
+        {{ verPapelera ? 'La papelera está vacía.' : 'No hay juegos en el inventario.' }}
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="modal-overlay" *ngIf="mostrarModal">
+    <div class="modal-form">
+      <h2>{{ esEdicion ? 'EDITAR JUEGO' : 'NUEVO LANZAMIENTO' }}</h2>
+      
+      <div class="form-grid">
+        <div class="form-group span-2">
+          <label>TÍTULO</label>
+          <input [(ngModel)]="juegoForm.titulo" type="text" placeholder="Nombre del juego">
+        </div>
+
+        <div class="form-group">
+          <label>CATEGORÍA</label>
+          <select [(ngModel)]="juegoForm.categoriaId">
+            <option *ngFor="let c of listaCategorias" [value]="c.id">{{ c.nombre }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>LANZAMIENTO</label>
+          <input [(ngModel)]="juegoForm.fechaLanzamiento" type="date">
+        </div>
+
+        <div class="form-group">
+          <label>PRECIO ($)</label>
+          <input [(ngModel)]="juegoForm.precio" type="number">
+        </div>
+
+        <div class="form-group">
+          <label>STOCK</label>
+          <input [(ngModel)]="juegoForm.stock" type="number">
+        </div>
+
+        <div class="form-group span-2">
+          <label>URL IMAGEN (Portada)</label>
+          <input [(ngModel)]="juegoForm.urlImagen" type="text" placeholder="https://...">
+        </div>
+        
+        <div class="form-group span-2">
+          <label>DESCRIPCIÓN</label>
+          <textarea [(ngModel)]="juegoForm.descripcion" rows="3"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="mostrarModal = false">CANCELAR</button>
+        <button class="btn-save" (click)="guardarJuego()">GUARDAR DATOS</button>
+      </div>
+    </div>
+  </div>
+
+</div>

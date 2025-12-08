@@ -1,0 +1,80 @@
+<div class="categorias-container">
+
+  <div class="header-tools">
+    <h1 class="glitch-title">CATEGORÍAS</h1>
+    
+    <div class="controls-row">
+      <div class="tabs">
+        <button type="button" [class.active]="!verPapelera" (click)="cambiarTab(false)">
+          ACTIVOS
+        </button>
+        <button type="button" [class.active]="verPapelera" (click)="cambiarTab(true)" class="tab-trash">
+          🗑️ PAPELERA
+        </button>
+      </div>
+
+      <button *ngIf="!verPapelera" class="btn-neon" (click)="abrirModal()">
+        + NUEVA CATEGORÍA
+      </button>
+    </div>
+  </div>
+
+  <div class="grid-table">
+    <table *ngIf="listaVisible.length > 0; else noData">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>NOMBRE</th>
+          <th>ESTADO</th>
+          <th>ACCIONES</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of listaVisible">
+          <td class="id-col">#{{ c.id }}</td>
+          <td class="name-col">{{ c.nombre }}</td>
+          <td>
+            <span class="status-badge" [class.on]="c.activo" [class.off]="!c.activo">
+              {{ c.activo ? 'ACTIVO' : 'INACTIVO' }}
+            </span>
+          </td>
+          <td class="actions-col">
+            <ng-container *ngIf="!verPapelera">
+              <button class="btn-icon edit" (click)="abrirModal(c)" title="Editar">✏️</button>
+              <button class="btn-icon delete" (click)="toggleEstado(c)" title="Desactivar">⛔</button>
+            </ng-container>
+
+            <ng-container *ngIf="verPapelera">
+              <button class="btn-icon restore" (click)="toggleEstado(c)" title="Restaurar">
+                ♻️ REACTIVAR
+              </button>
+            </ng-container>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #noData>
+      <div class="empty-msg">
+        {{ verPapelera ? 'La papelera está vacía.' : 'No hay categorías registradas.' }}
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="modal-overlay" *ngIf="mostrarModal">
+    <div class="modal-form">
+      <h2>{{ esEdicion ? 'EDITAR' : 'CREAR' }}</h2>
+      
+      <div class="form-group">
+        <label>NOMBRE DE CATEGORÍA</label>
+        <input [(ngModel)]="categoriaForm.nombre" type="text" placeholder="Ej: RPG, Deportes...">
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="mostrarModal = false">CANCELAR</button>
+        <button class="btn-save" (click)="guardarCategoria()">GUARDAR</button>
+      </div>
+    </div>
+  </div>
+
+</div>

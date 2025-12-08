@@ -1,0 +1,390 @@
+.gamer-container {
+  background-color: #0f0f0f;
+  color: white;
+  min-height: 100vh;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- HERO SECTION --- */
+.hero {
+  height: 30vh; /* Ocupa casi toda la pantalla inicial */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+  
+  position: relative;
+}
+
+.hero-content {
+  z-index: 10;
+}
+
+.hero-subtitle {
+  color: #ccc;
+  font-size: 1.2rem;
+  letter-spacing: 3px;
+  margin-top: 10px;
+  text-transform: uppercase;
+}
+
+.scroll-indicator {
+  margin-top: 50px;
+  font-size: 2rem;
+  color: #00ffcc;
+  cursor: pointer;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+  40% {transform: translateY(-10px);}
+  60% {transform: translateY(-5px);}
+}
+
+/* --- STATS BAR --- */
+.stats-bar {
+  display: flex;
+  justify-content: space-around;
+  padding: 30px 0;
+  background: #111;
+  border-bottom: 1px dashed #333;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #ff00ff;
+  text-shadow: 0 0 10px rgba(255,0,255,0.4);
+}
+
+.stat-label {
+  color: #666;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+/* --- TITULO DEL CATALOGO --- */
+.catalog-section {
+  padding: 40px 20px;
+}
+
+.section-title {
+  text-align: center;
+  color: white;
+  margin-bottom: 30px;
+  font-size: 1.5rem;
+  border-left: 5px solid #00ffcc;
+  display: inline-block;
+  padding-left: 15px;
+}
+
+/* --- FOOTER --- */
+.cyber-footer {
+  background: #050505;
+  border-top: 2px solid #333;
+  padding: 40px;
+  text-align: center;
+  color: #444;
+  margin-top: 50px;
+}
+
+.socials {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+.socials a {
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.8rem;
+  text-decoration: none; /* Quita el subrayado feo de los links */
+  color: #888; /* Color base (gris) */
+  transition: 0.3s;
+}
+
+.socials a:hover {
+  color: #00ffcc; /* Color neón al pasar el mouse */
+  text-shadow: 0 0 10px rgba(0, 255, 204, 0.5); /* Brillo extra */
+}
+
+.glitch-text {
+  font-size: 3rem;
+  color: #00ffcc; /* Verde Neón */
+  text-shadow: 2px 2px #ff00ff; /* Sombra Magenta */
+}
+
+.grid-juegos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.card-juego {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 10px;
+  width: 250px;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s; 
+  &:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+    border-color: #00ffcc;
+  }
+}
+.card-juego:hover {
+  /* Agregamos !important para imponer este estilo sobre el de Anime.js */
+  transform: translateY(-10px) scale(1.02) !important; 
+  
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+  border-color: #00ffcc;
+  z-index: 10; /* Opcional: para que se superponga a otras si es necesario */
+}
+
+.card-image {
+  height: 300px;
+  position: relative;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.stock-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #00ffcc;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.card-info {
+  padding: 15px;
+  text-align: center;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background: #ff00ff;
+  border: none;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+/* Modal Estilos */
+/* ====== NUEVO MODAL GAMER ====== */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.85); /* Fondo muy oscuro */
+  backdrop-filter: blur(5px); /* Efecto borroso de fondo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+  border: 1px solid #333;
+  width: 90%;
+  max-width: 900px; /* Más ancho para que quepa todo */
+  display: flex;
+  overflow: hidden;
+  border-radius: 15px;
+  box-shadow: 0 0 30px rgba(0, 255, 204, 0.2);
+  position: relative;
+}
+
+/* Columna Izquierda: Imagen Gigante */
+.modal-img-col {
+  width: 40%;
+  position: relative;
+}
+
+.modal-img-col img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Badge de Categoría flotante */
+.category-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: #ff00ff; /* Magenta */
+  color: white;
+  padding: 5px 15px;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  border-radius: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+/* Columna Derecha: Info y Formulario */
+.modal-info-col {
+  width: 60%;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  position: relative; /* Importante */
+  padding-right: 50px;
+}
+
+.modal-info-col h2 {
+  font-size: 2.5rem;
+  margin: 0;
+  color: #00ffcc;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.modal-desc {
+  color: #ccc;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  border-left: 3px solid #ff00ff;
+  padding-left: 15px;
+  max-height: 100px; /* Si es muy larga, scroll */
+  overflow-y: auto;
+}
+
+.modal-price {
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+  margin-top: 10px;
+}
+
+/* Formulario integrado */
+.reservation-form {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: auto; /* Empuja el form hacia abajo */
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  color: #00ffcc;
+  font-size: 0.8rem;
+  margin-bottom: 5px;
+}
+
+.reservation-form input {
+  width: 100%;
+  background: #222;
+  border: 1px solid #444;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.btn-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Botón de Cerrar (X) Estilo Gamer */
+.btn-close-modal {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 35px;           /* Tamaño fijo */
+  height: 35px;
+  background: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
+  border: 1px solid #333;
+  border-radius: 50%;    /* Lo hace perfectamente redondo */
+  color: #00ffcc;        /* Color Neón */
+  font-size: 1.2rem;
+  display: flex;         /* Para centrar la X perfectamente */
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 100;          /* Asegura que esté por encima de todo */
+  transition: all 0.3s ease;
+}
+
+.btn-close-modal:hover {
+  background: #ff00ff;   /* Fondo Magenta al pasar el mouse */
+  color: white;
+  transform: rotate(90deg); /* Pequeño giro cool */
+  border-color: #ff00ff;
+}
+
+/* Animación de entrada suave */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* HEADER: Asegura que sea relative para posicionar el botón */
+.hero {
+  position: relative;
+  /* ... resto de tu hero ... */
+}
+
+/* BOTÓN LOGIN STYLE */
+.login-access {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 15px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #333;
+  border-left: 3px solid #ff3333; /* Detalle rojo */
+  color: #888;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 0.8rem;
+  cursor: pointer;
+  z-index: 100;
+  transition: color 0.3s;
+  overflow: hidden; /* Para efectos de brillo */
+}
+
+.login-access:hover {
+  color: #fff;
+  background: rgba(255, 51, 51, 0.1);
+  box-shadow: 0 0 15px rgba(255, 51, 51, 0.3);
+  border-color: #ff3333;
+}
+
+.access-icon {
+  font-size: 1.2rem;
+}

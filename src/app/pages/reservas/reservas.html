@@ -1,0 +1,52 @@
+<div class="reservas-container">
+  
+  <h1 class="glitch-title">GESTIÓN DE RESERVAS</h1>
+
+  <div class="table-wrapper">
+    <table *ngIf="listaReservas.length > 0; else noData">
+      <thead>
+        <tr>
+          <th>CÓDIGO</th>
+          <th>FECHA</th>
+          <th>CLIENTE</th>
+          <th>CONTACTO</th>
+          <th>JUEGO</th>
+          <th>CANT.</th>
+          <th>ESTADO</th>
+          <th>ACCIÓN</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of listaReservas" [class.cancelled]="r.estado === 'Cancelada'">
+          <td class="code-cell">{{ r.codigoReserva }}</td>
+          <td>{{ r.fechaReserva | date:'shortDate' }}</td>
+          <td class="client-name">{{ r.clienteNombre }}</td>
+          <td>{{ r.clienteContacto }}</td>
+          <td class="game-cell">{{ r.videojuegoTitulo }}</td>
+          <td>x{{ r.cantidad }}</td>
+          <td>
+            <span class="status-badge" 
+                  [ngClass]="{
+                    'pending': r.estado === 'Pendiente',
+                    'completed': r.estado === 'Completada',
+                    'cancelled': r.estado === 'Cancelada'
+                  }">
+              {{ r.estado | uppercase }}
+            </span>
+          </td>
+          <td>
+            <button *ngIf="r.estado === 'Pendiente'" class="btn-cancel" (click)="cancelar(r)">
+              ❌ ANULAR
+            </button>
+            <span *ngIf="r.estado !== 'Pendiente'" class="no-action">-</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #noData>
+      <div class="empty-state">No hay reservas activas en el sistema.</div>
+    </ng-template>
+  </div>
+
+</div>

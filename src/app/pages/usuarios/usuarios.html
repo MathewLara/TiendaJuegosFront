@@ -1,0 +1,85 @@
+<div class="gestion-container">
+  
+  <header class="header-actions">
+    <h1 class="glitch-title">GESTIÓN DE PERSONAL</h1>
+    <button class="btn-neon" (click)="mostrarModal = true">
+      + NUEVO TRABAJADOR
+    </button>
+  </header>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>NOMBRE</th>
+          <th>EMAIL</th>
+          <th>ROL</th>
+          <th>ESTADO</th>
+          <th>ACCIONES</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of listaUsuarios" [class.inactive]="!u.activo">
+          <td>#{{ u.id }}</td>
+          <td class="agent-name">{{ u.nombre }}</td>
+          <td>{{ u.email }}</td>
+          <td>
+            <span class="badge" [ngClass]="u.rol === 'Admin' ? 'badge-admin' : 'badge-vendedor'">
+              {{ u.rol }}
+            </span>
+          </td>
+          <td>
+            <span class="status-indicator" [class.on]="u.activo" [class.off]="!u.activo">
+              {{ u.activo ? 'ONLINE' : 'OFFLINE' }}
+            </span>
+          </td>
+          <td>
+            <button *ngIf="u.activo" class="btn-switch btn-off" (click)="cambiarEstado(u)">
+              <span class="icon">✖️</span> DESACTIVAR
+            </button>
+
+            <button *ngIf="!u.activo" class="btn-switch btn-on" (click)="cambiarEstado(u)">
+              <span class="icon">⚡</span> REACTIVAR
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="modal-overlay" *ngIf="mostrarModal">
+    <div class="modal-content gamer-modal">
+      <h2>REGISTRAR NUEVO TRABAJADOR</h2>
+      
+      <div class="form-group">
+        <label>NOMBRE</label>
+        <input [(ngModel)]="nuevoUsuario.nombre" type="text" placeholder="...">
+      </div>
+
+      <div class="form-group">
+        <label>CORREO ELECTRÓNICO</label>
+        <input [(ngModel)]="nuevoUsuario.email" type="email" placeholder="@.com">
+      </div>
+
+      <div class="form-group">
+        <label>CONTRASEÑA</label>
+        <input [(ngModel)]="nuevoUsuario.password" type="password" placeholder="••••••">
+      </div>
+
+      <div class="form-group">
+        <label>ROL</label>
+        <select [(ngModel)]="nuevoUsuario.rol">
+          <option value="Vendedor">VENDEDOR</option>
+          <option value="Admin">ADMIN</option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-confirm" (click)="guardarUsuario()">GUARDAR</button>
+        <button class="btn-cancel" (click)="mostrarModal = false">CANCELAR</button>
+      </div>
+    </div>
+  </div>
+
+</div>

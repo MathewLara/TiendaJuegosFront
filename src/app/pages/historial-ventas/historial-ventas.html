@@ -1,0 +1,68 @@
+<div class="historial-container">
+  
+  <h1 class="glitch-title">REGISTRO DE TRANSACCIONES</h1>
+
+  <div class="table-wrapper">
+    <table *ngIf="listaVentas.length > 0; else noData">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>FECHA</th>
+          <th>CLIENTE</th>
+          <th>VENDEDOR</th>
+          <th>TOTAL</th>
+          <th>DETALLES</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let v of listaVentas">
+          <td class="id-cell">#{{ v.id }}</td>
+          <td>{{ v.fechaVenta | date:'short' }}</td> <td class="cliente-cell">{{ v.clienteNombre }}</td>
+          <td>{{ v.usuarioNombre || 'Admin' }}</td>
+          <td class="total-cell">${{ v.total | number:'1.2-2' }}</td>
+          <td>
+            <button class="btn-eye" (click)="verDetalle(v)">
+              👁️ VER ITEMS
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #noData>
+      <div class="empty-state">No hay ventas registradas aún.</div>
+    </ng-template>
+  </div>
+
+  <div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+    <div class="modal-ticket" (click)="$event.stopPropagation()">
+      <div class="ticket-header">
+        <h2>TICKET #{{ ventaSeleccionada?.id }}</h2>
+        <span class="ticket-date">{{ ventaSeleccionada?.fechaVenta | date:'medium' }}</span>
+      </div>
+
+      <div class="ticket-body">
+        <div class="item-row header">
+          <span>JUEGO</span>
+          <span>CANT.</span>
+          <span>SUBTOTAL</span>
+        </div>
+        
+        <div class="item-row" *ngFor="let d of ventaSeleccionada?.detalles">
+          <span class="game-name">{{ d.videojuegoTitulo }}</span>
+          <span>x{{ d.cantidad }}</span>
+          <span>${{ d.subtotal | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <div class="ticket-footer">
+        <div class="total-row">
+          <span>TOTAL PAGADO:</span>
+          <span class="grand-total">${{ ventaSeleccionada?.total | number:'1.2-2' }}</span>
+        </div>
+        <button class="btn-close" (click)="cerrarModal()">CERRAR</button>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,75 @@
+<div class="pos-container">
+  
+  <div class="catalog-section" [class.disabled]="esVentaDeReserva">
+    <h2 class="section-title">DISPONIBLE</h2>
+    
+    <div class="grid-juegos">
+      <div *ngFor="let juego of listaJuegos" class="game-card" (click)="agregarAlCarrito(juego)">
+        <div class="stock-tag" [class.no-stock]="juego.stock === 0">
+          {{ juego.stock }} un.
+        </div>
+        <img [src]="juego.urlImagen" alt="Cover">
+        <div class="game-info">
+          <h4>{{ juego.titulo }}</h4>
+          <span class="price">${{ juego.precio }}</span>
+        </div>
+        <div class="overlay" *ngIf="juego.stock > 0">
+          <span>+ AGREGAR</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cart-section">
+    <h2 class="section-title">ORDEN ACTUAL</h2>
+
+    <div class="reservation-search">
+      <div class="search-box">
+        <input [(ngModel)]="busquedaCodigo" 
+               [disabled]="esVentaDeReserva"
+               (keyup.enter)="buscarReserva()" 
+               type="text" 
+               placeholder="CÓDIGO RESERVA">
+        
+        <button *ngIf="!esVentaDeReserva" (click)="buscarReserva()" class="btn-search">BUSCAR</button>
+        <button *ngIf="esVentaDeReserva" (click)="limpiarReserva()" class="btn-clear">❌</button>
+      </div>
+    </div>
+    <div class="client-input">
+      <label>CLIENTE:</label>
+      <input [(ngModel)]="clienteNombre" 
+             [readonly]="esVentaDeReserva" 
+             [class.locked]="esVentaDeReserva"
+             type="text" 
+             placeholder="Nombre del cliente">
+    </div>
+
+    <div class="cart-items">
+      <div *ngIf="carrito.length === 0" class="empty-cart">
+        CARRO VACÍO<br>Selecciona items o busca reserva
+      </div>
+
+      <div *ngFor="let item of carrito; let i = index" class="cart-item">
+        <div class="item-details">
+          <span class="item-name">{{ item.titulo }}</span>
+          <span class="item-math">{{ item.cantidad }} x ${{ item.precioUnitario }}</span>
+        </div>
+        <div class="item-total">
+          ${{ item.subtotal.toFixed(2) }}
+        </div>
+        <button class="btn-remove" (click)="eliminarDelCarrito(i)">✕</button>
+      </div>
+    </div>
+
+    <div class="cart-footer">
+      <div class="total-row">
+        <span>TOTAL:</span>
+        <span class="total-amount">${{ totalVenta.toFixed(2) }}</span>
+      </div>
+      <button class="btn-checkout" [disabled]="carrito.length === 0" (click)="finalizarVenta()">
+        FINALIZAR VENTA ➔
+      </button>
+    </div>
+  </div>
+
+</div>

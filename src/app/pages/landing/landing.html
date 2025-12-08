@@ -1,0 +1,99 @@
+<div class="gamer-container">
+  
+  <header class="hero">
+    <div class="hero-content">
+      <h1 class="glitch-text">STOPGAMES</h1>
+      <p class="hero-subtitle">TU PRÓXIMA AVENTURA COMIENZA AQUÍ</p>
+      
+      <div class="scroll-indicator" (click)="scrollAbajo()">
+        <span>⇩</span>
+      </div>
+    </div>
+
+    <div class="login-access" (click)="irALogin()" (mouseenter)="efectoHover()" (mouseleave)="pausarHover()">
+      <div class="access-icon">🔓</div>
+    </div>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-number">100%</span>
+      <span class="stat-label">CALIDAD</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number counter">100</span>+
+      <span class="stat-label">JUEGOS DISP.</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number">24/7</span>
+      <span class="stat-label">SOPORTE</span>
+    </div>
+  </div>
+
+  <div class="catalog-section" id="catalogo">
+    <h2 class="section-title">CATÁLOGO DESTACADO</h2>
+    
+    <div class="grid-juegos">
+      <div *ngFor="let juego of listaJuegos" class="card-juego" #gameCard>
+        
+        <div class="card-image">
+          <img [src]="juego.urlImagen || 'assets/placeholder.jpg'" alt="Cover">
+          <div class="stock-badge">{{ juego.stock }} disp.</div>
+        </div>
+
+        <div class="card-info">
+          <h3>{{ juego.titulo }}</h3>
+          <p class="precio">${{ juego.precio }}</p>
+          <button (click)="abrirReserva(juego)" [disabled]="juego.stock <= 0">
+            {{ juego.stock > 0 ? 'RESERVAR' : 'AGOTADO' }}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="cyber-footer">
+    <div class="footer-content">
+      <p>© 2025 STOPGAMES STUDIOS. All rights reserved.</p>
+      <div class="socials">
+        <a href="https://twitter.com" target="_blank">TWITTER</a>
+        <a href="https://instagram.com" target="_blank">INSTAGRAM</a>
+        <a href="https://discord.com" target="_blank">DISCORD</a>
+      </div>
+    </div>
+  </footer>
+
+  <div class="modal-overlay" *ngIf="mostrarModal" (click)="mostrarModal = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button class="btn-close-modal" (click)="mostrarModal = false">✕</button>
+      <div class="modal-img-col">
+        <span class="category-badge">{{ juegoSeleccionado?.categoriaNombre || 'Acción' }}</span>
+        <img [src]="juegoSeleccionado?.urlImagen" alt="Portada">
+      </div>
+      <div class="modal-info-col">
+        <h2>{{ juegoSeleccionado?.titulo }}</h2>
+        <p class="modal-desc">
+          {{ juegoSeleccionado?.descripcion || 'Sin descripción disponible.' }}
+        </p>
+        <div class="modal-price">
+          ${{ juegoSeleccionado?.precio }}
+        </div>
+        <div class="reservation-form">
+          <div class="form-group">
+            <label>TU NOMBRE</label>
+            <input [(ngModel)]="datosCliente.nombre" type="text" placeholder="Gamertag o Nombre real">
+          </div>
+          <div class="form-group">
+            <label>CONTACTO</label>
+            <input [(ngModel)]="datosCliente.contacto" type="text" placeholder="Email o WhatsApp">
+          </div>
+          <div class="btn-actions">
+            <button (click)="confirmarReserva()" class="btn-confirmar">CONFIRMAR RESERVA</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

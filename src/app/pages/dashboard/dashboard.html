@@ -1,0 +1,45 @@
+<div class="dashboard-layout">
+  
+  <aside class="sidebar">
+    <div class="profile">
+      <div class="avatar">{{ usuario?.nombre?.charAt(0) }}</div>
+      <h3>{{ usuario?.nombre }}</h3>
+      <span class="role-badge">{{ usuario?.rol }}</span>
+    </div>
+
+    <nav class="menu">
+      
+      <ng-container *ngIf="usuario?.rol === 'Admin'">
+        <a routerLink="/dashboard/usuarios" routerLinkActive="active">
+          👥 Gestión de Usuarios
+        </a>
+      </ng-container>
+
+      <ng-container *ngIf="usuario?.rol === 'Vendedor'">
+        <a routerLink="/dashboard/ventas" routerLinkActive="active">
+          💰 Nueva Venta
+        </a>
+        <a routerLink="/dashboard/historial" routerLinkActive="active">
+          📜 Historial Ventas
+        </a>
+        <a routerLink="/dashboard/reservas" routerLinkActive="active">
+          📅 Reservas
+        </a>
+        <a routerLink="/dashboard/inventario" routerLinkActive="active">
+          🎮 Inventario Juegos
+        </a>
+        <a routerLink="/dashboard/categorias" routerLinkActive="active">
+          📋 Categorias
+        </a>
+      </ng-container>
+
+    </nav>
+
+    <button class="btn-logout" (click)="cerrarSesion()">Cerrar Sesión</button>
+  </aside>
+
+  <main class="content">
+    <router-outlet></router-outlet>
+  </main>
+
+</div>

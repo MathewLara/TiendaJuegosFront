@@ -1,1 +1,43 @@
-/* You can add global styles to this file, and also import other style files */
+/* RESET GLOBAL */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #050505; /* Fondo base negro para evitar parpadeos blancos */
+  font-family: 'Segoe UI', sans-serif;
+  overflow-x: hidden; /* Evita scroll horizontal accidental */
+}
+
+/* Opcional: Para que el sizing sea más fácil de calcular */
+* {
+  box-sizing: border-box;
+}
+/* === SWEETALERT GAMER THEME === */
+div:where(.swal2-container) div:where(.swal2-popup) {
+  background: #111 !important;     /* Fondo negro */
+  border: 2px solid #00ffcc !important; /* Borde Cyan */
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.4) !important;
+  color: #fff !important;
+}
+
+div:where(.swal2-container) h2:where(.swal2-title) {
+  color: #00ffcc !important;
+  text-transform: uppercase;
+  text-shadow: 0 0 5px #00ffcc;
+}
+
+div:where(.swal2-icon).swal2-success {
+  border-color: #00ffcc !important;
+  color: #00ffcc !important;
+}
+
+div:where(.swal2-icon).swal2-success [class^='swal2-success-line'] {
+  background-color: #00ffcc !important;
+}
+
+/* Botón de confirmación */
+div:where(.swal2-container) button.swal2-styled.swal2-confirm {
+  background-color: #ff00ff !important; /* Magenta */
+  box-shadow: 0 0 10px #ff00ff !important;
+}

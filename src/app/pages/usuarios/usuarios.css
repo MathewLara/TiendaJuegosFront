@@ -1,0 +1,191 @@
+.gestion-container {
+  padding: 20px;
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 20px;
+}
+
+.glitch-title {
+  color: #00ffcc;
+  text-shadow: 2px 2px #ff00ff;
+  font-size: 2rem;
+  margin: 0;
+}
+
+/* --- BOTONES DE ACCIÓN (SWITCH) --- */
+.btn-switch {
+  background: transparent;
+  border: 1px solid;
+  padding: 8px 15px;
+  font-family: 'Segoe UI', sans-serif;
+  font-weight: bold;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 1px;
+  width: 100%;
+  justify-content: center;
+}
+
+/* Estilo para REACTIVAR (Verde Neón) */
+.btn-on {
+  color: #00ffcc;
+  border-color: #00ffcc;
+  box-shadow: 0 0 5px rgba(0, 255, 204, 0.2);
+}
+
+.btn-on:hover {
+  background: #00ffcc;
+  color: black;
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.8);
+  transform: scale(1.05);
+}
+
+/* Estilo para BANEAR (Rojo Neón) */
+.btn-off {
+  color: #ff3333;
+  border-color: #ff3333;
+  box-shadow: 0 0 5px rgba(255, 51, 51, 0.2);
+  opacity: 0.7; /* Un poco más apagado por defecto */
+}
+
+.btn-off:hover {
+  background: #ff3333;
+  color: white;
+  opacity: 1;
+  box-shadow: 0 0 15px rgba(255, 51, 51, 0.8);
+  transform: scale(1.05);
+}
+
+.icon {
+  font-size: 1rem;
+}
+
+/* BOTÓN NEÓN */
+.btn-neon {
+  background: transparent;
+  border: 2px solid #ff00ff;
+  color: #ff00ff;
+  padding: 10px 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.2);
+}
+
+.btn-neon:hover {
+  background: #ff00ff;
+  color: white;
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
+}
+
+/* TABLA GAMER */
+.table-wrapper {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background: #111;
+  color: #666;
+  padding: 15px;
+  text-align: left;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+td {
+  padding: 15px;
+  border-bottom: 1px solid #222;
+}
+
+tr:hover {
+  background: rgba(0, 255, 204, 0.05);
+}
+
+/* Fila inactiva (usuario baneado) */
+tr.inactive {
+  opacity: 0.5;
+  background: rgba(255, 0, 0, 0.05);
+}
+
+.agent-name {
+  font-weight: bold;
+  color: #fff;
+}
+
+/* BADGES */
+.badge {
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+.badge-admin { background: #ff00ff; color: white; }
+.badge-vendedor { background: #333; color: #ccc; border: 1px solid #555; }
+
+.status-indicator {
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+.status-indicator.on { color: #00ffcc; text-shadow: 0 0 5px #00ffcc; }
+.status-indicator.off { color: #ff3333; }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.gamer-modal {
+  background: #1a1a1a;
+  border: 2px solid #00ffcc;
+  padding: 30px;
+  width: 400px;
+  box-shadow: 0 0 30px rgba(0, 255, 204, 0.2);
+}
+
+.gamer-modal h2 {
+  color: #00ffcc;
+  margin-top: 0;
+  text-align: center;
+}
+
+.form-group { margin-bottom: 15px; }
+label { display: block; color: #888; font-size: 0.8rem; margin-bottom: 5px; }
+input, select {
+  width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: white;
+}
+
+.modal-actions {
+  display: flex; gap: 10px; margin-top: 20px;
+}
+
+.btn-confirm { flex: 1; background: #00ffcc; border: none; padding: 10px; cursor: pointer; font-weight: bold; }
+.btn-cancel { flex: 1; background: #333; border: none; color: white; cursor: pointer; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
