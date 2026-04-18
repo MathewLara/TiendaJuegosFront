@@ -3,31 +3,14 @@ import { CommonModule } from '@angular/common'; // Importante para poder usar *n
 import { RouterOutlet } from '@angular/router';
 import { JuegoService } from './services/juego';
 import { Videojuego } from './interfaces/videojuego';
+
+//El AppComponent actúa como el componente raíz de Angular y su única responsabilidad es contener el <router-outlet>.
+// Esto permite que Angular renderice dinámicamente las páginas según la ruta actual.
+// Es por eso que no contiene lógica propia ni llamadas a servicios: toda la funcionalidad está dentro de las páginas del dashboard.
 @Component({
   selector: 'app-root',
   standalone: true,
- imports: [ RouterOutlet, CommonModule], 
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+  imports: [RouterOutlet],
+  template: `<router-outlet></router-outlet>`
 })
-export class AppComponent implements OnInit {
-  // 1. Inyectamos tu servicio 
-  private juegoService = inject(JuegoService);
-  
-  // 2. Preparamos una lista vacía para recibir los videojuegos
-  listaJuegos: Videojuego[] = [];
-
-  // 3. Esta función se ejecuta sola al iniciar la página
-  ngOnInit(): void {
-    this.juegoService.getVideojuegos().subscribe({
-      next: (datos) => {
-        // Aquí guardamos los datos que llegaron del Backend
-        this.listaJuegos = datos;
-        console.log('¡Éxito! Videojuegos cargados:', datos);
-      },
-      error: (e) => {
-        console.error('Error conectando:', e);
-      }
-    });
-  }
-}
+export class AppComponent {}

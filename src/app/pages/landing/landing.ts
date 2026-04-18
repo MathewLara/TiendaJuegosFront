@@ -129,7 +129,7 @@ export class LandingComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // 2. Transición ÉPICA de salida
+  // 2. Transición de salida
   irALogin() {
     // A. Detenemos cualquier hover
     this.pausarHover();
@@ -163,12 +163,12 @@ export class LandingComponent implements OnInit, AfterViewInit {
       opacity: 0,
       scale: 0.1,
       duration: 400
-    }, '-=600'); // Empieza un poco antes
+    }, '-=600');
 
     // C. Navegar al terminar la animación
     setTimeout(() => {
       this.router.navigate(['/login']);
-    }, 1500); // Tiempo suficiente para ver la destrucción
+    }, 1500); 
   }
 
   confirmarReserva() {

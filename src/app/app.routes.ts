@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { LandingComponent } from './pages/landing/landing';
-import { LoginComponent} from './pages/login/login';
+import { LoginComponent } from './pages/login/login';
 import { DashboardComponent } from './pages/dashboard/dashboard';
 import { UsuariosComponent } from './pages/usuarios/usuarios';
 import { VentasComponent } from './pages/ventas/ventas';
@@ -9,21 +9,53 @@ import { ReservasComponent } from './pages/reservas/reservas';
 import { InventarioComponent } from './pages/inventario/inventario';
 import { CategoriasComponent } from './pages/categorias/categorias';
 
+// Definición de rutas principales de la aplicación
 export const routes: Routes = [
-    { path: '', component: LandingComponent },
-    { path: 'login', component: LoginComponent },
-    { 
+
+  // ==========================================
+  // Ruta raíz: muestra la Landing pública
+  // ==========================================
+  { path: '', component: LandingComponent },
+
+  // ==========================================
+  // Página de Login
+  // ==========================================
+  { path: 'login', component: LoginComponent },
+
+  // ==========================================
+  // Rutas del Dashboard (Intranet)
+  // Este componente es el layout/contenedor
+  // ==========================================
+  { 
     path: 'dashboard', 
     component: DashboardComponent,
+
+    // Rutas hijas que se renderizan dentro del <router-outlet> del Dashboard
     children: [
-      // Cuando entras a /dashboard, por defecto no muestra nada, o una bienvenida
-      { path: 'usuarios', component: UsuariosComponent }, 
+
+      // /dashboard/usuarios - Gestión de usuarios
+      { path: 'usuarios', component: UsuariosComponent },
+
+      // /dashboard/ventas - Registrar ventas
       { path: 'ventas', component: VentasComponent },
+
+      // /dashboard/historial - Ver historial de ventas
       { path: 'historial', component: HistorialVentasComponent },
+
+      // /dashboard/reservas - Ver o gestionar reservas
       { path: 'reservas', component: ReservasComponent },
+
+      // /dashboard/inventario - Administración de inventario
       { path: 'inventario', component: InventarioComponent },
+
+      // /dashboard/categorias - CRUD de categorías
       { path: 'categorias', component: CategoriasComponent },
     ]
   },
-    { path: '**', redirectTo: '' }
+
+  // ==========================================
+  // Ruta comodín: si escriben algo que no existe,
+  // redirige nuevamente a la Landing
+  // ==========================================
+  { path: '**', redirectTo: '' }
 ];

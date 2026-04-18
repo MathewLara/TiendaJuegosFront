@@ -5,7 +5,7 @@ import { Router } from '@angular/router'; // Para navegar tras el login
 import Swal from 'sweetalert2'; //para las alertas
 import { AuthService } from '../../services/auth';
 
-// 👇 Importante: Declaramos la variable global
+// Declaramos la variable global
 declare var anime: any;
 
 @Component({

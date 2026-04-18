@@ -1,62 +1,60 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { UsuarioRegistro, UsuarioResponse } from '../interfaces/usuario'; 
+import { jwtDecode } from 'jwt-decode'; 
 
-//Este servicio maneja toda la lógica de autenticación: login, logout y estado de sesión.
-// El login hace una petición POST al backend y, si es exitosa, guarda la info en memoria y en localStorage.
-// Con eso mantenemos la sesión aunque recargue la página.
-
-// Marcamos la clase como un servicio disponible en toda la app
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  // Inyectamos HttpClient usando la función inject (forma moderna de Angular)
+  // Inyectamos HttpClient usando la función moderna inject 
   private http = inject(HttpClient);
 
-  // URL del endpoint donde se hace el login en el backend
-  private apiUrl = 'https://localhost:7296/api/Auth/login'; 
-
-  // Variable interna para guardar temporalmente los datos del usuario logueado
-  private usuarioActual: UsuarioResponse | null = null;
+  // NUEVA URL: Apunta a tu servidor de Django
+  private apiUrl = 'http://127.0.0.1:8000/api/auth/login/'; 
 
   constructor() { }
 
   // Método para iniciar sesión
-  // Recibe credenciales (email y password) y devuelve un Observable con la respuesta del backend
-  login(credenciales: any): Observable<UsuarioResponse> {
-
-    // Hacemos una petición POST al backend enviando las credenciales
-    return this.http.post<UsuarioResponse>(this.apiUrl, credenciales).pipe(
-
-      // tap nos permite ejecutar acciones sin alterar la respuesta del Observable
-      //Un Observable es una fuente de datos que llega en el tiempo.
-      // Angular usa Observables porque el backend no responde instantáneamente.”
-      tap((usuario) => {
-
-        // Guardamos los datos del usuario en memoria
-        this.usuarioActual = usuario;
-
-        // Guardamos al usuario en localStorage para mantener la sesión incluso si se recarga la página
-        localStorage.setItem('usuarioGamer', JSON.stringify(usuario));
+  login(credenciales: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl, credenciales).pipe(
+      tap((response) => {
+        // Django nos devuelve dos tokens. Los guardamos en la "caja fuerte" del navegador.
+        // Ya no guardamos el objeto del usuario directamente por seguridad.
+        localStorage.setItem('access_token', response.access);
+        localStorage.setItem('refresh_token', response.refresh);
       })
     );
   }
 
   // Método para cerrar sesión
   logout() {
-
-    // Borramos el usuario en memoria
-    this.usuarioActual = null;
-
-    // Quitamos también el usuario del localStorage
-    localStorage.removeItem('usuarioGamer');
+    // Destruimos las llaves de seguridad
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
   }
 
   // Método que permite saber si el usuario está logueado
   estaLogueado(): boolean {
+    // Si la llave maestra existe, asumimos que está logueado
+    return !!localStorage.getItem('access_token');
+  }
 
-    // Devuelve true si hay un usuario en memoria o si está guardado en localStorage
-    return !!this.usuarioActual || !!localStorage.getItem('usuarioGamer');
+  // Utilidad para obtener el token puro (lo usará el Interceptor)
+  getToken(): string | null {
+    return localStorage.getItem('access_token');
+  }
+
+  // NUEVO MÉTODO: Como el token está encriptado, lo decodificamos
+  // para obtener el nombre, email y rol que inyectaste en Python.
+  getUsuarioActual(): any {
+    const token = this.getToken();
+    if (token) {
+      try {
+        return jwtDecode(token);
+      } catch (error) {
+        return null;
+      }
+    }
+    return null;
   }
 }
