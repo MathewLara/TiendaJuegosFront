@@ -26,6 +26,7 @@ export class VentasComponent implements OnInit {
   carrito: any[] = []; 
   totalVenta = 0;
   clienteNombre = 'Consumidor Final';
+  clienteCedula = ''; 
 
   // NUEVAS VARIABLES PARA RESERVA
   busquedaCodigo = '';        // El texto del input
@@ -46,40 +47,43 @@ export class VentasComponent implements OnInit {
     });
   }
 
-  // --- NUEVA FUNCIÓN: BUSCAR RESERVA ---
+// --- FUNCIÓN ARREGLADA: BUSCAR RESERVA ---
   buscarReserva() {
     if (!this.busquedaCodigo.trim()) return;
 
-    // Buscamos en todas las reservas (idealmente el backend tendría un endpoint buscarPorCodigo, 
-    // pero podemos filtrar aquí ya que tienes getReservas)
     this.reservaService.getReservas().subscribe({
       next: (reservas) => {
-        // Buscamos la reserva exacta
-        const reservaEncontrada = reservas.find(r => r.codigoReserva === this.busquedaCodigo.trim());
+        // TRADUCTOR: Buscamos usando el nombre que manda Django (codigo_reserva)
+        const reservaEncontrada = reservas.find(r => 
+          r.codigoReserva === this.busquedaCodigo.trim() || 
+          r.codigoReserva === this.busquedaCodigo.trim() // Por si acaso
+        );
 
-        if (reservaEncontrada && reservaEncontrada.estado === 'Pendiente') {
+        // También verificamos el estado (Django suele mandarlo en minúsculas o Capitalizado)
+        if (reservaEncontrada && (reservaEncontrada.estado === 'Pendiente' || reservaEncontrada.estado?.toLowerCase() === 'pendiente')) {
           
-          // 1. Cargamos los datos
           this.esVentaDeReserva = true;
-          this.codigoReservaActivo = reservaEncontrada.codigoReserva ||'';
-          this.clienteNombre = reservaEncontrada.clienteNombre;
+          // TRADUCTOR: Extraemos con los nombres de Django
+          this.codigoReservaActivo = reservaEncontrada.codigoReserva || reservaEncontrada.codigoReserva || '';
+          this.clienteNombre = reservaEncontrada.clienteNombre || reservaEncontrada.clienteNombre || 'Cliente Reserva';
+          
+          const idJuego = reservaEncontrada.videojuegoId || reservaEncontrada.videojuegoId;
 
-          // 2. Llenamos el carrito mágicamente
+          // Llenamos el carrito
           this.carrito = [{
-            videojuegoId: reservaEncontrada.videojuegoId,
-            titulo: reservaEncontrada.videojuegoTitulo,
-            // Nota: ReservaDTO a veces no trae precio, usaremos el del juego actual si es posible
-            // o asumimos que el precio no cambió.
-            precioUnitario: 0, // Lo corregiremos abajo buscando en la lista de juegos
-            cantidad: reservaEncontrada.cantidad,
+            videojuegoId: idJuego,
+            titulo: 'Juego Reservado', // Temporal hasta que encontremos el original
+            precioUnitario: 0, 
+            cantidad: reservaEncontrada.cantidad || 1,
             subtotal: 0
           }];
 
-          // Buscamos el precio real en nuestra lista de juegos cargada
-          const juegoOriginal = this.listaJuegos.find(j => j.id === reservaEncontrada.videojuegoId);
+          // Buscamos el precio real
+          const juegoOriginal = this.listaJuegos.find(j => j.id === idJuego);
           if (juegoOriginal) {
+            this.carrito[0].titulo = juegoOriginal.titulo;
             this.carrito[0].precioUnitario = juegoOriginal.precio;
-            this.carrito[0].subtotal = juegoOriginal.precio * reservaEncontrada.cantidad;
+            this.carrito[0].subtotal = juegoOriginal.precio * this.carrito[0].cantidad;
           }
 
           this.calcularTotal();
@@ -96,7 +100,7 @@ export class VentasComponent implements OnInit {
         } else {
           Swal.fire({
             title: 'CÓDIGO INVÁLIDO',
-            text: 'No existe o ya fue completada/cancelada.',
+            text: 'No existe, o ya fue completada/cancelada.',
             icon: 'error',
             background: '#111', color: '#fff'
           });
@@ -104,7 +108,6 @@ export class VentasComponent implements OnInit {
       }
     });
   }
-
   // --- NUEVA FUNCIÓN: LIMPIAR SI SE ARREPIENTE ---
   limpiarReserva() {
     this.esVentaDeReserva = false;
@@ -165,23 +168,26 @@ export class VentasComponent implements OnInit {
     this.totalVenta = this.carrito.reduce((acc, item) => acc + item.subtotal, 0);
   }
 
+  // --- FUNCIÓN ARREGLADA: FINALIZAR VENTA ---
   finalizarVenta() {
     if (this.carrito.length === 0) return;
 
-    const usuarioLogueado = JSON.parse(localStorage.getItem('usuarioGamer') || '{}');
+    // Ya no usamos usuarioGamer porque lo quitamos en el login. Usamos tu AuthService:
+    const usuarioLogueado = this.authService.getUsuarioActual();
 
-    const ventaDTO = {
-      clienteNombre: this.clienteNombre,
-      usuarioId: usuarioLogueado.id || 1,
-      // IMPORTANTE: Enviamos el código si existe
-      codigoReserva: this.esVentaDeReserva ? this.codigoReservaActivo : null, 
+    // EMPAQUETAMOS CON LA CÉDULA
+    const paqueteParaDjango = {
+      cliente_nombre: this.clienteNombre,
+      cliente_cedula: this.clienteCedula, // <--- ¡EL DATO MÁGICO!
+      usuario: usuarioLogueado?.user_id || 1, // user_id es como Django guarda el ID
+      codigo_reserva: this.esVentaDeReserva ? this.codigoReservaActivo : null, 
       detalles: this.carrito.map(item => ({
-        videojuegoId: item.videojuegoId,
+        videojuego: item.videojuegoId,
         cantidad: item.cantidad
       }))
     };
 
-    this.ventaService.crearVenta(ventaDTO).subscribe({
+    this.ventaService.crearVenta(paqueteParaDjango).subscribe({
       next: () => {
         Swal.fire({
           title: '¡VENTA COMPLETADA!',
@@ -191,16 +197,24 @@ export class VentasComponent implements OnInit {
           confirmButtonColor: '#ff00ff'
         });
 
-        // Limpiamos todo
-        this.limpiarReserva(); // Esto resetea variables y carrito
+        this.limpiarReserva(); 
         this.cargarJuegos(); 
         this.cdr.detectChanges();
       },
       error: (err) => {
         console.error(err);
+        
+        // Mejoramos el error para ver si Django se está quejando de algo específico (como lo de "mínimo 2")
+        let mensajeError = 'No se pudo procesar la venta';
+        if (err.error && typeof err.error === 'object') {
+           mensajeError = JSON.stringify(err.error); // Esto imprimirá el error exacto de Django en pantalla
+        } else if (typeof err.error === 'string') {
+           mensajeError = err.error;
+        }
+
         Swal.fire({
-          title: 'ERROR',
-          text: err.error || 'No se pudo procesar la venta',
+          title: 'ERROR EN BACKEND',
+          text: mensajeError,
           icon: 'error',
           background: '#111', color: '#fff'
         });

@@ -115,12 +115,16 @@ export class LoginComponent implements AfterViewInit {
                showConfirmButton: false,
                timer: 1500
             }).then(() => {
-             const usuario = JSON.parse(localStorage.getItem('usuarioGamer') || '{}');
-   
-             if (usuario.rol === 'Admin') {
-             this.router.navigate(['/dashboard/usuarios']);
-            } else {
-              this.router.navigate(['/dashboard']); // O a ventas cuando lo crees
+              // Ya no leemos de 'usuarioGamer'. 
+              // Obtenemos los datos desde el token decodificado que tu servicio maneja
+              const usuarioDecodificado = this.authService.getUsuarioActual();
+              
+              // Si el token tiene la propiedad rol (asegúrate de que Python la mande), úsala. 
+              // Si no, lo mandamos a una ruta general del dashboard.
+              if (usuarioDecodificado && usuarioDecodificado.rol === 'Admin') {
+                this.router.navigate(['/dashboard/usuarios']);
+              } else {
+                this.router.navigate(['/dashboard/inventario']); // Te sugiero mandarlo a inventario o ventas en lugar de la raíz vacía del dashboard
               }
              });
           }

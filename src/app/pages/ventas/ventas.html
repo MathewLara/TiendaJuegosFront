@@ -43,6 +43,15 @@
              type="text" 
              placeholder="Nombre del cliente">
     </div>
+    
+    <div class="client-input" style="margin-top: 10px;">
+      <label>CÉDULA:</label>
+      <input [(ngModel)]="clienteCedula" 
+             [readonly]="esVentaDeReserva" 
+             [class.locked]="esVentaDeReserva"
+             type="text" 
+             placeholder="Cédula Ecuatoriana (Ej: 1712345678)">
+    </div>
 
     <div class="cart-items">
       <div *ngIf="carrito.length === 0" class="empty-cart">
