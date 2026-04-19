@@ -8,14 +8,21 @@
     </div>
 
     <nav class="menu">
+      <div class="menu-section-title">📊 DASHBOARD</div>
+      <a routerLink="/dashboard/inicio" routerLinkActive="active">
+        🖥️ Centro de Control
+      </a>
       
-      <ng-container *ngIf="usuario?.rol === 'Admin'">
+      <ng-container *ngIf="usuario?.rol === 'Admin' || usuario?.rol === 'admin'">
+        <div class="menu-section-title">🛠️ ADMINISTRACIÓN</div>
         <a routerLink="/dashboard/usuarios" routerLinkActive="active">
-          👥 Gestión de Usuarios
+          👥 Gestión de Personal
         </a>
       </ng-container>
 
-      <ng-container *ngIf="usuario?.rol === 'Vendedor'">
+      <ng-container *ngIf="usuario?.rol === 'Vendedor' || usuario?.rol === 'vendedor' || usuario?.rol === 'Admin' || usuario?.rol === 'admin'">
+        <div class="menu-section-title" style="margin-top: 15px;">🏪 OPERACIONES TIENDA</div>
+        
         <a routerLink="/dashboard/ventas" routerLinkActive="active">
           💰 Nueva Venta
         </a>

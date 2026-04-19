@@ -47,4 +47,11 @@ export class UsuarioService {
     // 2. Quitamos responseType:'text' porque Django siempre manda JSON
     return this.http.put(`${this.apiUrl}${id}/activar/`, {});
   }
+  // ==========================================
+  // 5. Actualizar usuario (PATCH)
+  // ==========================================
+  actualizarUsuario(id: number, datos: any): Observable<any> {
+    // Usamos patch para actualizaciones parciales
+    return this.http.patch(`${this.apiUrl}${id}/`, datos);
+  }
 }

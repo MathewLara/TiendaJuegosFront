@@ -33,4 +33,8 @@ export class VentaService {
   getHistorial(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
   }
+
+  getEstadisticas(): Observable<any> {
+    return this.http.get(`${this.apiUrl}estadisticas/`);
+  }
 }

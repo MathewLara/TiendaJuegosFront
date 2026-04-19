@@ -8,6 +8,7 @@ import { HistorialVentasComponent } from './pages/historial-ventas/historial-ven
 import { ReservasComponent } from './pages/reservas/reservas';
 import { InventarioComponent } from './pages/inventario/inventario';
 import { CategoriasComponent } from './pages/categorias/categorias';
+import { InicioComponent } from './pages/inicio/inicio'; 
 
 // Definición de rutas principales de la aplicación
 export const routes: Routes = [
@@ -32,6 +33,11 @@ export const routes: Routes = [
 
     // Rutas hijas que se renderizan dentro del <router-outlet> del Dashboard
     children: [
+      // Redirección por defecto: al entrar a /dashboard nos manda a /dashboard/inicio
+      { path: '', redirectTo: 'inicio', pathMatch: 'full' },
+
+      // /dashboard/inicio - Tu nuevo Centro de Operaciones
+      { path: 'inicio', component: InicioComponent },
 
       // /dashboard/usuarios - Gestión de usuarios
       { path: 'usuarios', component: UsuariosComponent },
