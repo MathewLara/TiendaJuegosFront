@@ -44,8 +44,24 @@ export class InventarioComponent implements OnInit {
   }
 
   cargarDatos() {
-    this.juegoService.getVideojuegos().subscribe(data => {
-      this.listaCompleta = data;
+    this.juegoService.getVideojuegos().subscribe((data: any[]) => {
+      
+      // TRADUCTOR COMPLETO: Mapeamos TODOS los campos explícitamente para que TypeScript no llore
+      this.listaCompleta = data.map(j => ({
+        id: j.id,
+        titulo: j.titulo,
+        descripcion: j.descripcion,
+        precio: j.precio,
+        stock: j.stock,
+        activo: j.activo, 
+        categoriaId: j.categoria, 
+        categoriaNombre: j.categoria_nombre,
+        fechaLanzamiento: j.fecha_lanzamiento || j.fechaLanzamiento,
+        
+        // ¡LA IMAGEN SE LLAMA IGUAL EN AMBOS LADOS!
+        url_imagen: j.url_imagen 
+      }));
+      
       this.filtrarLista(); 
       this.cdr.detectChanges();
     });
@@ -119,9 +135,22 @@ export class InventarioComponent implements OnInit {
       return;
     }
 
+    // CREAMOS EL PAQUETE "TRADUCIDO" PARA DJANGO
+    const paqueteParaDjango = {
+      titulo: this.juegoForm.titulo,
+      descripcion: this.juegoForm.descripcion,
+      precio: this.juegoForm.precio,
+      stock: this.juegoForm.stock,
+      url_imagen: this.juegoForm.url_imagen, 
+      
+      fecha_lanzamiento: this.juegoForm.fechaLanzamiento,
+      categoria: Number(this.juegoForm.categoriaId),
+      activo: true
+    };
+
     const request = this.esEdicion
-      ? this.juegoService.actualizarJuego(this.juegoForm.id, this.juegoForm)
-      : this.juegoService.crearJuego(this.juegoForm);
+      ? this.juegoService.actualizarJuego(this.juegoForm.id, paqueteParaDjango)
+      : this.juegoService.crearJuego(paqueteParaDjango);
 
     request.subscribe({
       next: () => {
@@ -135,7 +164,7 @@ export class InventarioComponent implements OnInit {
       },
       error: (e) => {
         console.error(e);
-        Swal.fire({ title: 'Error', text: 'No se pudo guardar', icon: 'error', background: '#111', color: '#fff' });
+        Swal.fire({ title: 'Error', text: 'No se pudo guardar en la base de datos', icon: 'error', background: '#111', color: '#fff' });
       }
     });
   }

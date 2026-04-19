@@ -171,18 +171,31 @@ export class VentasComponent implements OnInit {
   finalizarVenta() {
     if (this.carrito.length === 0) return;
 
-    // Ya no usamos usuarioGamer porque lo quitamos en el login. Usamos tu AuthService:
+    // 1. VALIDACIÓN FRONTAL: No dejamos que envíe a Django si la cédula no tiene 10 números
+    if (!this.clienteCedula || this.clienteCedula.length !== 10) {
+      Swal.fire({
+        title: 'FALTA LA CÉDULA',
+        text: 'Por favor, ingresa una cédula válida de 10 dígitos antes de cobrar.',
+        icon: 'warning',
+        background: '#111', color: '#fff'
+      });
+      return; // Detenemos la venta aquí mismo
+    }
+
     const usuarioLogueado = this.authService.getUsuarioActual();
 
-    // EMPAQUETAMOS CON LA CÉDULA
+    // 2. EMPAQUETADO CORRECTO (Sin nulls)
     const paqueteParaDjango = {
       cliente_nombre: this.clienteNombre,
-      cliente_cedula: this.clienteCedula, // <--- ¡EL DATO MÁGICO!
-      usuario: usuarioLogueado?.user_id || 1, // user_id es como Django guarda el ID
-      codigo_reserva: this.esVentaDeReserva ? this.codigoReservaActivo : null, 
+      cliente_cedula: this.clienteCedula, 
+      usuario: usuarioLogueado?.user_id || 1, 
+      codigo_reserva: this.esVentaDeReserva ? this.codigoReservaActivo : "", 
+      
+      // EL ARREGLO ESTÁ AQUÍ ABAJO:
       detalles: this.carrito.map(item => ({
         videojuego: item.videojuegoId,
-        cantidad: item.cantidad
+        cantidad: item.cantidad,
+        precio_unitario: item.precioUnitario
       }))
     };
 
@@ -203,10 +216,9 @@ export class VentasComponent implements OnInit {
       error: (err) => {
         console.error(err);
         
-        // Mejoramos el error para ver si Django se está quejando de algo específico (como lo de "mínimo 2")
         let mensajeError = 'No se pudo procesar la venta';
         if (err.error && typeof err.error === 'object') {
-           mensajeError = JSON.stringify(err.error); // Esto imprimirá el error exacto de Django en pantalla
+           mensajeError = JSON.stringify(err.error); 
         } else if (typeof err.error === 'string') {
            mensajeError = err.error;
         }
