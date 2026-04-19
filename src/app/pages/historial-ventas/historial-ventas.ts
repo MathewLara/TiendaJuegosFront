@@ -24,9 +24,28 @@ export class HistorialVentasComponent implements OnInit {
 
   cargarHistorial() {
     this.ventaService.getHistorial().subscribe({
-      next: (data) => {
-        this.listaVentas = data;
-        console.log('Historial cargado:', data);
+      next: (data: any[]) => {
+        // TRADUCTOR: Mapeamos los nombres de Django (snake_case) a los de Angular (CamelCase)
+        this.listaVentas = data.map(v => ({
+          id: v.id,
+          fechaVenta: v.fecha_venta,
+          total: parseFloat(v.total),
+          codigoReserva: v.codigo_reserva,
+          clienteNombre: v.cliente_nombre,
+          usuarioId: v.usuario,
+          usuarioNombre: v.usuario_nombre || 'Vendedor',
+          
+          // Traducimos también los items del modal
+          detalles: v.detalles.map((d: any) => ({
+            videojuegoId: d.videojuego,
+            videojuegoTitulo: d.videojuego_titulo, // Ahora sí viene desde Django
+            cantidad: d.cantidad,
+            precioUnitario: parseFloat(d.precio_unitario),
+            subtotal: d.cantidad * parseFloat(d.precio_unitario)
+          }))
+        }));
+
+        console.log('Historial traducido:', this.listaVentas);
         this.cdr.detectChanges();
       },
       error: (e) => console.error(e)

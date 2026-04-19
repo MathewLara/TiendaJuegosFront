@@ -52,33 +52,31 @@ export class VentasComponent implements OnInit {
     if (!this.busquedaCodigo.trim()) return;
 
     this.reservaService.getReservas().subscribe({
-      next: (reservas) => {
-        // TRADUCTOR: Buscamos usando el nombre que manda Django (codigo_reserva)
+      // AGREGAMOS : any[] para que VS Code no marque error rojo
+      next: (reservas: any[]) => {
+        // Buscamos usando el nombre exacto que viene de Python: codigo_reserva
         const reservaEncontrada = reservas.find(r => 
-          r.codigoReserva === this.busquedaCodigo.trim() || 
-          r.codigoReserva === this.busquedaCodigo.trim() // Por si acaso
+          r.codigo_reserva === this.busquedaCodigo.trim()
         );
 
-        // También verificamos el estado (Django suele mandarlo en minúsculas o Capitalizado)
         if (reservaEncontrada && (reservaEncontrada.estado === 'Pendiente' || reservaEncontrada.estado?.toLowerCase() === 'pendiente')) {
           
           this.esVentaDeReserva = true;
-          // TRADUCTOR: Extraemos con los nombres de Django
-          this.codigoReservaActivo = reservaEncontrada.codigoReserva || reservaEncontrada.codigoReserva || '';
-          this.clienteNombre = reservaEncontrada.clienteNombre || reservaEncontrada.clienteNombre || 'Cliente Reserva';
+          // Guardamos los datos usando los nombres de Python
+          this.codigoReservaActivo = reservaEncontrada.codigo_reserva;
+          this.clienteNombre = reservaEncontrada.cliente_nombre;
+          this.clienteCedula = reservaEncontrada.cliente_cedula;
           
-          const idJuego = reservaEncontrada.videojuegoId || reservaEncontrada.videojuegoId;
+          const idJuego = reservaEncontrada.videojuego;
 
-          // Llenamos el carrito
           this.carrito = [{
             videojuegoId: idJuego,
-            titulo: 'Juego Reservado', // Temporal hasta que encontremos el original
+            titulo: 'Juego Reservado', 
             precioUnitario: 0, 
-            cantidad: reservaEncontrada.cantidad || 1,
+            cantidad: reservaEncontrada.cantidad,
             subtotal: 0
           }];
 
-          // Buscamos el precio real
           const juegoOriginal = this.listaJuegos.find(j => j.id === idJuego);
           if (juegoOriginal) {
             this.carrito[0].titulo = juegoOriginal.titulo;
@@ -100,7 +98,7 @@ export class VentasComponent implements OnInit {
         } else {
           Swal.fire({
             title: 'CÓDIGO INVÁLIDO',
-            text: 'No existe, o ya fue completada/cancelada.',
+            text: 'No existe o no está pendiente.',
             icon: 'error',
             background: '#111', color: '#fff'
           });
@@ -115,6 +113,7 @@ export class VentasComponent implements OnInit {
     this.busquedaCodigo = '';
     this.carrito = [];
     this.clienteNombre = 'Consumidor Final';
+    this.clienteCedula = ''; // <-- Agregamos esto para que se borre la cédula
     this.calcularTotal();
     this.cdr.detectChanges();
   }
