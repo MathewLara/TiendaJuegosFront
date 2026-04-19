@@ -12,15 +12,13 @@ export class ReservaService {
   // Inyectamos HttpClient usando la función inject 
   private http = inject(HttpClient);
 
-  // URL base del controlador de Reservas en el backend
-  private apiUrl = 'https://localhost:7296/api/Reservas'; 
+  // NUEVA URL BASE: Minúsculas y slash final obligatorio para Django
+  private apiUrl = 'http://127.0.0.1:8000/api/reservas/'; 
 
   constructor() { }
 
   // ==========================================
   // 1. Crear una reserva (Público en la landing)
-  // Este método se usa desde la página principal, no requiere login
-  // Envía los datos del formulario al backend mediante POST
   // ==========================================
   crearReserva(datos: any): Observable<any> {
     return this.http.post(this.apiUrl, datos);
@@ -28,8 +26,6 @@ export class ReservaService {
 
   // ==========================================
   // 2. Listar todas las reservas (Intranet - Vendedor)
-  // Retorna un Observable con un arreglo de reservas
-  // Este endpoint normalmente está protegido y solo lo ve personal interno
   // ==========================================
   getReservas(): Observable<Reserva[]> {
     return this.http.get<Reserva[]>(this.apiUrl);
@@ -37,15 +33,10 @@ export class ReservaService {
 
   // ==========================================
   // 3. Cancelar una reserva (PUT)
-  // Al cancelar una reserva, el backend actualiza el estado y devuelve el stock
-  // Se manda un cuerpo vacío {} porque no necesitamos enviar datos extra
-  // Se especifica responseType: 'text' por si el backend responde con texto simple
   // ==========================================
   cancelarReserva(id: number): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/cancelar/${id}`, 
-      {},
-      { responseType: 'text' }
-    );
+    // 1. El ID va antes de la acción: /api/reservas/1/cancelar/
+    // 2. Quitamos el responseType:'text' porque Django siempre responde con JSON limpio
+    return this.http.put(`${this.apiUrl}${id}/cancelar/`, {});
   }
 }

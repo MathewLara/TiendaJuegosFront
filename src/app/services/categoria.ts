@@ -12,14 +12,13 @@ export class CategoriaService {
   // Inyectamos HttpClient usando la función inject 
   private http = inject(HttpClient);
 
-  // URL base del controlador de Categorías en el backend
-  private apiUrl = 'https://localhost:7296/api/Categorias';
+  // NUEVA URL BASE: Apuntamos a Django con minúsculas y el slash final
+  private apiUrl = 'http://127.0.0.1:8000/api/categorias/';
 
   constructor() { }
 
   // ==========================================
   // 1. Obtener todas las categorías (GET)
-  // Este método devuelve un Observable con un arreglo de categorías
   // ==========================================
   getCategorias(): Observable<Categoria[]> {
     return this.http.get<Categoria[]>(this.apiUrl);
@@ -27,7 +26,6 @@ export class CategoriaService {
 
   // ==========================================
   // 2. Crear una nueva categoría (POST)
-  // Enviamos un objeto "categoria" al backend
   // ==========================================
   crearCategoria(categoria: any): Observable<any> {
     return this.http.post(this.apiUrl, categoria);
@@ -35,27 +33,24 @@ export class CategoriaService {
 
   // ==========================================
   // 3. Editar/Actualizar una categoría (PUT)
-  // Se puede usar tanto para cambiar el nombre como para reactivarla
-  // El backend interpreta qué actualizar según el cuerpo enviado
   // ==========================================
   actualizarCategoria(id: number, categoria: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, categoria);
+    // Agregamos el ID directamente a la url y cerramos con el slash
+    return this.http.put(`${this.apiUrl}${id}/`, categoria);
   }
 
   // ==========================================
-  // 4. "Eliminar" categoría (DELETE)
-  // Esto usualmente no borra la categoría, solo la desactiva en base de datos
+  // 4. "Eliminar" categoría (DELETE) (Soft Delete en Django)
   // ==========================================
   eliminarCategoria(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.http.delete(`${this.apiUrl}${id}/`);
   }
 
   // ==========================================
   // 5. Reactivar una categoría (PUT)
-  // Llamamos un endpoint especial: /activar/{id}
-  // Enviamos un cuerpo vacío porque no se necesita más info
   // ==========================================
   activarCategoria(id: number): Observable<any> {
-    return this.http.put(`${this.apiUrl}/activar/${id}`, {});
+    // La acción "@action" de Django requiere el ID primero: /api/categorias/1/activar/
+    return this.http.put(`${this.apiUrl}${id}/activar/`, {});
   }
 }

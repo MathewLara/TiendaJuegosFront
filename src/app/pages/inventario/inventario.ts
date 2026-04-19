@@ -34,7 +34,7 @@ export class InventarioComponent implements OnInit {
     descripcion: '',
     precio: 0,
     stock: 0,
-    urlImagen: '',
+    url_imagen: '',
     fechaLanzamiento: new Date().toISOString().split('T')[0],
     categoriaId: 0
   };
@@ -106,7 +106,7 @@ export class InventarioComponent implements OnInit {
       this.esEdicion = false;
       this.juegoForm = {
         id: 0, titulo: '', descripcion: '', precio: 0, stock: 0, 
-        urlImagen: '', fechaLanzamiento: new Date().toISOString().split('T')[0], 
+        url_imagen: '', fechaLanzamiento: new Date().toISOString().split('T')[0], 
         categoriaId: this.listaCategorias[0]?.id || 0
       };
     }

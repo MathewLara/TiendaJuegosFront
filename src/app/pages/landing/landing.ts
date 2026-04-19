@@ -25,7 +25,7 @@ export class LandingComponent implements OnInit, AfterViewInit {
   listaJuegos: Videojuego[] = [];
   mostrarModal = false;
   juegoSeleccionado: Videojuego | null = null;
-  datosCliente = { nombre: '', contacto: '', cantidad: 1 };
+  datosCliente = { nombre: '', contacto: '', cedula: '', cantidad: 1 };
 
   // Variable para controlar la animación hover
   hoverAnimation: any;
@@ -174,34 +174,64 @@ export class LandingComponent implements OnInit, AfterViewInit {
   confirmarReserva() {
     if (!this.juegoSeleccionado) return;
 
-    const reservaDTO = {
-      videojuegoId: this.juegoSeleccionado.id,
-      clienteNombre: this.datosCliente.nombre,
-      clienteContacto: this.datosCliente.contacto,
-      cantidad: this.datosCliente.cantidad
+    // 1. Calculamos la fecha de expiración que C# hacía automático pero Python no (ej. 3 días)
+    const fecha = new Date();
+    fecha.setDate(fecha.getDate() + 3);
+    const fechaExpiracion = fecha.toISOString().split('T')[0];
+
+    // 2. TRADUCTOR: Empaquetamos EXACTAMENTE con los nombres (snake_case) que pide Django
+    const paqueteParaDjango = {
+      videojuego: this.juegoSeleccionado.id,          // Django pide "videojuego", no "videojuegoId"
+      cliente_nombre: this.datosCliente.nombre,       // Django pide "cliente_nombre"
+      cliente_contacto: this.datosCliente.contacto,   // Django pide "cliente_contacto"
+      cliente_cedula: this.datosCliente.cedula,       // ¡Aquí mandamos la cédula!
+      fecha_expiracion: fechaExpiracion,              // El dato nuevo obligatorio
+      cantidad: this.datosCliente.cantidad || 1       // Lo dejamos por si tu backend lo usa
     };
 
-    this.reservaService.crearReserva(reservaDTO).subscribe({
+    // 3. Enviamos el paquete traducido
+    this.reservaService.crearReserva(paqueteParaDjango).subscribe({
       next: (resp) => {
         // Cierra el modal de Angular primero
         this.mostrarModal = false; 
 
-        // Lanza la alerta Gamer
+        // Lanza la alerta Gamer (¡Mantenemos tu diseño que está pepa!)
         Swal.fire({
           title: '¡Juego Apartado!',
-          text: `Tu código de reserva es: ${resp.codigoReserva}`,
+          // Si Django no manda codigoReserva, ponemos un texto por defecto
+          text: resp.codigoReserva ? `Tu código de reserva es: ${resp.codigoReserva}` : 'Reserva completada con éxito.',
           icon: 'success',
           confirmButtonText: 'ENTENDIDO',
-          background: '#1a1a1a', // Respaldo por si falla el CSS global
+          background: '#1a1a1a', 
           color: '#fff'
         });
 
         this.cargarJuegos(); // Recargamos stock
       },
       error: (err) => {
+        // 1. Preparamos un mensaje por defecto
+        let mensajeBackend = 'Error desconocido al validar los datos.';
+        
+        // 2. Revisamos qué nos mandó Django y sacamos el texto exacto
+        if (err.error) {
+          // Ojo: Como ahora se llama cliente_cedula, Django podría mandar el error con ese nombre
+          if (err.error.cliente_cedula) {
+            mensajeBackend = err.error.cliente_cedula[0]; 
+          } else if (err.error.cedula) {
+            mensajeBackend = err.error.cedula[0];
+          } else if (err.error.detail) {
+            mensajeBackend = err.error.detail; 
+          } else if (err.error.mensaje) {
+            mensajeBackend = err.error.mensaje; 
+          } else if (typeof err.error === 'string') {
+            mensajeBackend = err.error;
+          }
+        }
+
+        // 3. Mostramos la alerta bonita con el mensaje real
         Swal.fire({
           title: 'GAME OVER',
-          text: 'No se pudo completar la reserva: ' + (err.error || 'Error desconocido'),
+          text: mensajeBackend,
           icon: 'error',
           confirmButtonText: 'REINTENTAR',
           background: '#1a1a1a',

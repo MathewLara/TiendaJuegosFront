@@ -58,36 +58,37 @@ export class LoginComponent implements AfterViewInit {
   }
 
     iniciarSesion() {
-    if (!this.email || !this.password) {
-      this.animacionError();
-      return;
-    }
-    // LÓGICA CON EL BACKEND
-    const credenciales = {
-      nombre: "LoginUser", // Relleno
-      email: this.email,
-      password: this.password,
-      rol: "Admin"         // Relleno
-    };
-    this.authService.login(credenciales).subscribe({
-      next: (usuario) => {
-        // SI EL LOGIN ES CORRECTO -> EJECUTAMOS LA ANIMACIÓN DE SALIDA
-        this.ejecutarAnimacionSalida(usuario.nombre);
-      },
-      error: (err) => {
-        // SI FALLA -> ANIMACIÓN DE ERROR
-        console.error(err);
-        this.animacionError();
-        Swal.fire({
-            icon: 'error',
-            title: 'ACCESO DENEGADO',
-            text: 'Credenciales incorrectas',
-            background: '#111',
-            color: '#fff'
-        });
-      }
-    });
+  if (!this.email || !this.password) {
+    this.animacionError();
+    return;
   }
+
+  // TRADUCCIÓN PARA DJANGO:
+  // Quitamos lo que sobra y renombramos 'email' a 'username'
+  const credenciales = {
+    username: this.email, // Django espera 'username'
+    password: this.password
+  };
+
+  this.authService.login(credenciales).subscribe({
+    next: (resp) => {
+      // SI EL LOGIN ES CORRECTO
+      // Ojo: Si el backend devuelve el nombre dentro de 'resp.user.nombre' o similar, asegúrate de pasarlo bien
+      this.ejecutarAnimacionSalida(resp.username || 'Usuario');
+    },
+    error: (err) => {
+      console.error(err);
+      this.animacionError();
+      Swal.fire({
+          icon: 'error',
+          title: 'ACCESO DENEGADO',
+          text: 'Credenciales incorrectas',
+          background: '#111',
+          color: '#fff'
+      });
+    }
+  });
+}
 
     ejecutarAnimacionSalida(nombreUsuario: string) {
     anime({
