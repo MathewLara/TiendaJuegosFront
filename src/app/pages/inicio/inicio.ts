@@ -26,7 +26,13 @@ export class InicioComponent implements OnInit {
   cargarEstadisticas() {
     this.ventaService.getEstadisticas().subscribe({
       next: (data) => {
-        this.stats = data;
+        console.log('Datos recibidos del server:', data); // Esto es para que veas en la consola (F12) si llegan datos
+        // Asignamos asegurándonos de que si vienen nulos, se mantengan en 0
+        this.stats = {
+          total_ganancias: data.total_ganancias || 0,
+          ventas_hoy: data.ventas_hoy || 0,
+          poco_stock: data.poco_stock || []
+        };
       },
       error: (e) => console.error('Error al cargar stats:', e)
     });

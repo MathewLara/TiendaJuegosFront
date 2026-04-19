@@ -6,7 +6,7 @@
       <div class="stat-icon">💰</div>
       <div class="stat-info">
         <p>INGRESOS TOTALES</p>
-        <h2>${{ stats.total_ganancias | number:'1.2-2' }}</h2>
+        <h2>${{ stats?.total_ganancias | number:'1.2-2' }}</h2>
       </div>
     </div>
 
@@ -14,15 +14,15 @@
       <div class="stat-icon">⚡</div>
       <div class="stat-info">
         <p>VENTAS DE HOY</p>
-        <h2>{{ stats.ventas_hoy }}</h2>
+        <h2>{{ stats?.ventas_hoy }}</h2>
       </div>
     </div>
   </div>
 
-  <div class="inventory-card" *ngIf="stats.poco_stock.length > 0">
+  <div class="inventory-card" *ngIf="stats?.poco_stock?.length > 0">
     <h3>⚠️ SUMINISTROS CRÍTICOS (STOCK BAJO)</h3>
     <div class="stock-list">
-      <div class="stock-item" *ngFor="let item of stats.poco_stock">
+      <div class="stock-item" *ngFor="let item of stats?.poco_stock">
         <span>{{ item.titulo }}</span>
         <span class="stock-badge">Solo {{ item.stock }} unidades</span>
       </div>
