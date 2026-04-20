@@ -209,35 +209,36 @@ export class LandingComponent implements OnInit, AfterViewInit {
         this.cargarJuegos(); // Recargamos stock
       },
       error: (err) => {
-        // 1. Preparamos un mensaje por defecto
-        let mensajeBackend = 'Error desconocido al validar los datos.';
-        
-        // 2. Revisamos qué nos mandó Django y sacamos el texto exacto
-        if (err.error) {
-          // Ojo: Como ahora se llama cliente_cedula, Django podría mandar el error con ese nombre
-          if (err.error.cliente_cedula) {
-            mensajeBackend = err.error.cliente_cedula[0]; 
-          } else if (err.error.cedula) {
-            mensajeBackend = err.error.cedula[0];
-          } else if (err.error.detail) {
-            mensajeBackend = err.error.detail; 
-          } else if (err.error.mensaje) {
-            mensajeBackend = err.error.mensaje; 
-          } else if (typeof err.error === 'string') {
-            mensajeBackend = err.error;
-          }
-        }
+    console.error("Error capturado del backend:", err);
 
-        // 3. Mostramos la alerta bonita con el mensaje real
-        Swal.fire({
-          title: 'GAME OVER',
-          text: mensajeBackend,
-          icon: 'error',
-          confirmButtonText: 'REINTENTAR',
-          background: '#1a1a1a',
-          color: '#fff'
-        });
+    // 1. Extraer correctamente el mensaje de Django
+    let mensaje = "No se pudo procesar la reserva. Verifica los datos.";
+    
+    if (err.error && typeof err.error === 'object') {
+      const keys = Object.keys(err.error);
+      if (keys.length > 0) {
+        const primerError = err.error[keys[0]];
+        mensaje = Array.isArray(primerError) ? primerError[0] : primerError;
       }
+    } else if (typeof err.error === 'string') {
+      mensaje = err.error;
+    }
+
+    // 2. Lanzar alerta FORZANDO que se ponga encima del modal oscuro
+    Swal.fire({
+      title: 'ERROR DE VALIDACIÓN',
+      text: String(mensaje),
+      icon: 'error',
+      background: '#111',
+      color: '#fff',
+      confirmButtonColor: '#ff00ff',
+      
+      // TRUCO SUPREMO: Esto empuja la alerta de SweetAlert hacia adelante
+      didOpen: () => {
+        const swalContainer = document.querySelector('.swal2-container') as HTMLElement;
+        if (swalContainer) {
+          swalContainer.style.zIndex = '999999';
+        }}
     });
   }
-}
+})}}

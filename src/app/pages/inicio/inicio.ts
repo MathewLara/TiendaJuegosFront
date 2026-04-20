@@ -1,40 +1,50 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { VentaService } from '../../services/venta';
 
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [CommonModule, DecimalPipe],
-  templateUrl: './inicio.html',  // <--- Le quitamos el .component
-  styleUrl: './inicio.css'       // <--- Le quitamos el .component
+  imports: [CommonModule],
+  templateUrl: './inicio.html',
+  styleUrl: './inicio.css' 
 })
 export class InicioComponent implements OnInit {
-  private ventaService = inject(VentaService);
-  
-  // Datos iniciales para que no explote la pantalla mientras carga
-  stats: any = { 
-    total_ganancias: 0, 
-    ventas_hoy: 0, 
-    poco_stock: [] 
-  };
 
-  ngOnInit() {
+  private ventaService = inject(VentaService);
+  private cdr = inject(ChangeDetectorRef);
+
+  // LA CORRECCIÓN: Creamos la variable 'stats' exactamente como la pide tu HTML
+  stats: any = null; 
+  
+  cargando: boolean = true;
+  errorCarga: boolean = false;
+
+  ngOnInit(): void {
     this.cargarEstadisticas();
   }
 
   cargarEstadisticas() {
+    this.cargando = true;
     this.ventaService.getEstadisticas().subscribe({
-      next: (data) => {
-        console.log('Datos recibidos del server:', data); // Esto es para que veas en la consola (F12) si llegan datos
-        // Asignamos asegurándonos de que si vienen nulos, se mantengan en 0
-        this.stats = {
-          total_ganancias: data.total_ganancias || 0,
-          ventas_hoy: data.ventas_hoy || 0,
-          poco_stock: data.poco_stock || []
-        };
+      next: (data: any) => {
+        console.log("Datos del backend (Django):", data); 
+        
+        // Asignamos toda la respuesta del backend directamente a la variable 'stats'
+        this.stats = data;
+        
+        this.cargando = false;
+        this.errorCarga = false;
+        
+        // Forzamos la actualización de la pantalla
+        this.cdr.detectChanges(); 
       },
-      error: (e) => console.error('Error al cargar stats:', e)
+      error: (err) => {
+        console.error("Error al cargar estadísticas:", err);
+        this.cargando = false;
+        this.errorCarga = true;
+        this.stats = null;
+      }
     });
   }
 }

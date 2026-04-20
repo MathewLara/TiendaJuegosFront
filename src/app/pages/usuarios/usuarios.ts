@@ -18,35 +18,33 @@ export class UsuariosComponent implements OnInit {
 
   listaUsuarios: UsuarioResponse[] = [];
   mostrarModal = false;
-  // 1. AGREGA ESTAS VARIABLES ARRIBA (Debajo de mostrarModal)
+  
   esEdicion = false;
   idEdicion = 0;
 
-  // 2. CAMBIA ESTO PARA ABRIR EL MODAL LIMPIO
   abrirModalNuevo() {
     this.esEdicion = false;
     this.nuevoUsuario = { nombre: '', email: '', password: '', rol: 'Vendedor' };
     this.mostrarModal = true;
   }
 
-  // 3. NUEVA FUNCIÓN PARA ABRIR EL MODAL CON DATOS
   editarUsuario(u: any) {
     this.esEdicion = true;
     this.idEdicion = u.id;
     this.nuevoUsuario = {
       nombre: u.nombre,
       email: u.email,
-      password: '', // Lo dejamos vacío por seguridad, para no mostrar la encriptada
+      password: '', // Lo dejamos vacío por seguridad
       rol: u.rol
     };
     this.mostrarModal = true;
   }
-  // Objeto para el formulario de nuevo usuario
+  
   nuevoUsuario: UsuarioRegistro = {
     nombre: '',
     email: '',
     password: '',
-    rol: 'Vendedor' // Por defecto
+    rol: 'Vendedor'
   };
 
   ngOnInit(): void {
@@ -56,13 +54,12 @@ export class UsuariosComponent implements OnInit {
   cargarUsuarios() {
     this.usuarioService.getUsuarios().subscribe({
       next: (data: any[]) => {
-        // TRADUCTOR: De Django (snake_case) a Angular
         this.listaUsuarios = data.map(u => ({
           id: u.id,
-          nombre: u.username,  // <--- Django manda 'username'
+          nombre: u.username,
           email: u.email,
           rol: u.rol,
-          activo: u.is_active  // <--- Django manda 'is_active'
+          activo: u.is_active
         }));
         
         this.cdr.detectChanges(); 
@@ -72,73 +69,65 @@ export class UsuariosComponent implements OnInit {
   }
 
   guardarUsuario() {
-    // 1. Validamos que no nos dejen campos vacíos por error
     if (!this.nuevoUsuario.nombre || !this.nuevoUsuario.email) {
-      Swal.fire({ 
-        title: 'Datos Incompletos', 
-        text: 'El nombre y el correo son obligatorios.', 
-        icon: 'warning', 
-        background: '#111', color: '#fff' 
-      });
+      this.lanzarAlerta('Datos Incompletos', 'El nombre y correo son obligatorios', 'warning');
       return;
     }
 
-    // 2. Empaquetamos los datos traduciéndolos para Django
+    // Traducimos los campos al idioma que entiende Django
     const paqueteParaDjango: any = {
-      username: this.nuevoUsuario.nombre, // Django exige que se llame 'username'
+      username: this.nuevoUsuario.nombre, // Django validará que no tenga números ahora
       email: this.nuevoUsuario.email,
-      rol: this.nuevoUsuario.rol
+      rol: this.nuevoUsuario.rol // Asegúrate que en el HTML el select tenga value="Admin"
     };
 
-    // 3. LA MAGIA DE LA CONTRASEÑA:
-    // Si escribieron una contraseña, la mandamos al backend para que la encripte.
-    // Si la dejaron en blanco, NO la mandamos, así Django respeta la que ya existía.
     if (this.nuevoUsuario.password && this.nuevoUsuario.password.trim() !== '') {
       paqueteParaDjango.password = this.nuevoUsuario.password;
     }
 
-    // 4. Decidimos qué ruta tomar: ¿Estamos editando o creando?
     const request = this.esEdicion
       ? this.usuarioService.actualizarUsuario(this.idEdicion, paqueteParaDjango)
       : this.usuarioService.crearUsuario(paqueteParaDjango);
 
-    // 5. Enviamos la petición al servidor
     request.subscribe({
       next: () => {
-        // Todo salió bien: Cerramos modal, recargamos tabla y lanzamos alerta verde
         this.mostrarModal = false;
         this.cargarUsuarios(); 
-        
-        Swal.fire({
-          title: this.esEdicion ? '¡USUARIO ACTUALIZADO!' : '¡NUEVO EMPLEADO!',
-          text: this.esEdicion ? 'Datos modificados correctamente' : 'Usuario creado con éxito',
-          icon: 'success',
-          background: '#111', color: '#fff'
-        });
+        this.lanzarAlerta('¡ÉXITO!', 'Operación realizada correctamente', 'success');
       },
       error: (err) => {
-        // Hubo un error: Leemos qué le duele a Django y lo mostramos en rojo
-        let msj = 'No se pudo guardar el usuario';
+        // Extraemos el mensaje limpio (como lo arreglamos antes)
+        let msj = 'Error al procesar usuario';
         if (err.error && typeof err.error === 'object') {
-           msj = JSON.stringify(err.error);
-        } else if (typeof err.error === 'string') {
-           msj = err.error;
+           const keys = Object.keys(err.error);
+           if (keys.length > 0) {
+             const primerError = err.error[keys[0]];
+             msj = Array.isArray(primerError) ? primerError[0] : primerError;
+           }
         }
-        
-        Swal.fire({ 
-          title: 'ERROR EN BACKEND', 
-          text: msj, 
-          icon: 'error', 
-          background: '#111', color: '#fff' 
-        });
+        this.lanzarAlerta('ERROR DE VALIDACIÓN', String(msj), 'error');
       }
     });
   }
 
-cambiarEstado(user: UsuarioResponse) {
-    // Si está activo lo desactivamos
+  // Función auxiliar para no repetir el código del Z-Index
+  lanzarAlerta(titulo: string, texto: string, icono: any) {
+    Swal.fire({
+      title: titulo,
+      text: texto,
+      icon: icono,
+      background: '#111',
+      color: '#fff',
+      confirmButtonColor: '#ff00ff',
+      didOpen: () => {
+        const container = document.querySelector('.swal2-container') as HTMLElement;
+        if (container) container.style.zIndex = '999999';
+      }
+    });
+  }
+
+  cambiarEstado(user: UsuarioResponse) {
     if (user.activo) { 
-      
       Swal.fire({
         title: '¿DESACTIVAR USUARIO?',
         text: `Se desactivará el acceso a ${user.nombre}`,
@@ -151,25 +140,17 @@ cambiarEstado(user: UsuarioResponse) {
       }).then((result) => {
         if (result.isConfirmed) {
           this.usuarioService.desactivarUsuario(user.id).subscribe(() => {
-            
             user.activo = false; 
-            this.cdr.detectChanges(); // Forzamos el cambio visual INMEDIATO
-
+            this.cdr.detectChanges(); 
             Swal.fire({ title: 'USUARIO DESACTIVADO', icon: 'success', background: '#111', color: '#fff' });
           });
         }
       });
-
     } else {
-      // LOGICA DE ACTIVAR
       this.usuarioService.activarUsuario(user.id).subscribe({
         next: () => {
-
           user.activo = true; 
-          
-          // Forzamos el repintado inmediato
           this.cdr.detectChanges(); 
-          
           const Toast = Swal.mixin({
             toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
             background: '#111', color: '#fff'

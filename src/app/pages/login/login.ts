@@ -1,8 +1,8 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, inject, Injectable } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router'; // Para navegar tras el login
-import Swal from 'sweetalert2'; //para las alertas
+import { Router } from '@angular/router'; 
+import Swal from 'sweetalert2'; 
 import { AuthService } from '../../services/auth';
 
 // Declaramos la variable global
@@ -26,11 +26,9 @@ export class LoginComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     // 1. ANIMACIÓN DE ENTRADA (System Boot)
-    // Primero hacemos invisibles los elementos para que no parpadeen
     anime.set('.stagger-element', { opacity: 0, translateY: 20 });
     anime.set('.login-card', { opacity: 0, scale: 0.9 });
 
-    // Línea de tiempo: Secuencia de eventos
     const timeline = anime.timeline({
       easing: 'easeOutExpo',
       duration: 800
@@ -44,60 +42,68 @@ export class LoginComponent implements AfterViewInit {
       duration: 1000
     })
     .add({
-      targets: '.scan-line', // La barrita superior crece
+      targets: '.scan-line', 
       width: ['0%', '100%'],
       easing: 'easeInOutQuad',
       duration: 500
-    }, '-=600') // Empieza 600ms antes de que termine lo anterior
+    }, '-=600') 
     .add({
-      targets: '.stagger-element', // Título, inputs, botón...
+      targets: '.stagger-element', 
       opacity: [0, 1],
       translateY: [20, 0],
-      delay: anime.stagger(100) // Uno tras otro cada 100ms
+      delay: anime.stagger(100) 
     }, '-=400');
   }
 
-    iniciarSesion() {
-  if (!this.email || !this.password) {
-    this.animacionError();
-    return;
+  iniciarSesion() {
+    // CASO 1: Campos vacíos
+    if (!this.email || !this.password) {
+      this.efectoTemblor(); // Solo tiembla
+      Swal.fire({           // Muestra el error de campos
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Datos incompletos',
+        background: '#333',
+        color: 'white',
+        showConfirmButton: false,
+        timer: 1500
+      });
+      return;
+    }
+
+    const credenciales = {
+      username: this.email, 
+      password: this.password
+    };
+
+    // CASO 2: Envío al Backend
+    this.authService.login(credenciales).subscribe({
+      next: (resp) => {
+        this.ejecutarAnimacionSalida(resp.username || 'Usuario');
+      },
+      error: (err) => {
+        console.error(err);
+        this.efectoTemblor(); // Solo tiembla
+        Swal.fire({           // Muestra el error de acceso denegado
+            icon: 'error',
+            title: 'ACCESO DENEGADO',
+            text: 'Credenciales incorrectas',
+            background: '#111',
+            color: '#fff',
+            confirmButtonColor: '#ff00ff'
+        });
+      }
+    });
   }
 
-  // TRADUCCIÓN PARA DJANGO:
-  // Quitamos lo que sobra y renombramos 'email' a 'username'
-  const credenciales = {
-    username: this.email, // Django espera 'username'
-    password: this.password
-  };
-
-  this.authService.login(credenciales).subscribe({
-    next: (resp) => {
-      // SI EL LOGIN ES CORRECTO
-      // Ojo: Si el backend devuelve el nombre dentro de 'resp.user.nombre' o similar, asegúrate de pasarlo bien
-      this.ejecutarAnimacionSalida(resp.username || 'Usuario');
-    },
-    error: (err) => {
-      console.error(err);
-      this.animacionError();
-      Swal.fire({
-          icon: 'error',
-          title: 'ACCESO DENEGADO',
-          text: 'Credenciales incorrectas',
-          background: '#111',
-          color: '#fff'
-      });
-    }
-  });
-}
-
-    ejecutarAnimacionSalida(nombreUsuario: string) {
+  ejecutarAnimacionSalida(nombreUsuario: string) {
     anime({
       targets: this.loginBtn.nativeElement,
       scale: [1, 0.9],
       duration: 100,
       easing: 'easeInOutQuad',
       complete: () => {
-        // Al terminar de encogerse el botón...
         anime({
           targets: '.login-card',
           translateY: -50,
@@ -115,16 +121,12 @@ export class LoginComponent implements AfterViewInit {
                showConfirmButton: false,
                timer: 1500
             }).then(() => {
-              // Ya no leemos de 'usuarioGamer'. 
-              // Obtenemos los datos desde el token decodificado que tu servicio maneja
               const usuarioDecodificado = this.authService.getUsuarioActual();
               
-              // Si el token tiene la propiedad rol (asegúrate de que Python la mande), úsala. 
-              // Si no, lo mandamos a una ruta general del dashboard.
               if (usuarioDecodificado && usuarioDecodificado.rol === 'Admin') {
                 this.router.navigate(['/dashboard/usuarios']);
               } else {
-                this.router.navigate(['/dashboard/inventario']); // Te sugiero mandarlo a inventario o ventas en lugar de la raíz vacía del dashboard
+                this.router.navigate(['/dashboard/inventario']); 
               }
              });
           }
@@ -132,8 +134,9 @@ export class LoginComponent implements AfterViewInit {
       }
     });
   }
-  // Efecto de temblor si te equivocas
-  animacionError() {
+
+  // NUEVO: Efecto de temblor PURO (sin SweetAlert) para evitar conflictos
+  efectoTemblor() {
     anime({
       targets: '.login-card',
       translateX: [
@@ -144,17 +147,6 @@ export class LoginComponent implements AfterViewInit {
         { value: 0, duration: 100 }
       ],
       easing: 'linear'
-    });
-    
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'error',
-      title: 'Datos incompletos',
-      background: '#333',
-      color: 'white',
-      showConfirmButton: false,
-      timer: 1500
     });
   }
 }
